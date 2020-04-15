@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdafruitSinglePageFont.cs" />
+    <Compile Include="BME280Sensor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,6 +56,11 @@
       <Project>{08e0fc2b-abf5-4c46-af18-d14b0a35949d}</Project>
       <Name>SSD1306-Sharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bme280_license.txt" />
+    <Content Include="adafruit_license.txt" />
+    <Content Include="ssd1306-sharp_license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
