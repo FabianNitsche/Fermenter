@@ -33,8 +33,8 @@ namespace SSD1306_Sample
 
             // Write true whenever the number is even and odd when the number is odd
             using (var imgCaptureHandler = new ImageStreamCaptureHandler("/home/pi/images/", "jpg"))
-            //using (observable.Select(x => x % 2 == 0).Subscribe(relay))
-            //using (observable.Select(x => x % 2 == 0).Subscribe(light1))
+            using (observable.Select(x => x % 2 == 0).Subscribe(relay))
+            using (observable.Select(x => x % 2 == 0).Subscribe(light1))
             //using (observable.Select(x => x % 2 != 0).Subscribe(light2))
             //using (button.Do(pressed => Console.WriteLine(pressed)).Subscribe())
             using (button.Subscribe(light2))
@@ -51,25 +51,17 @@ namespace SSD1306_Sample
 
                 var dfont = new AdafruitSinglePageFont();
 
-                //using (button.Do(pressed =>
-                //{
-                //    display.WriteLineBuff(dfont, pressed.ToString());
-                //    display.DisplayUpdate();
-                //}).Subscribe())
+                for (int i = 0; i < 100; i++)
                 {
-                    //for (int i = 0; i < 100; i++)
-                    //{
-                    //    display.WriteLineBuff(dfont, $"Temperature: {sensor.ReadTemperature().Result} °C", $"Pressure: {sensor.ReadPressure().Result} Pa", $"Humidity: {sensor.ReadHumidity().Result} %", $"Altitude: {sensor.ReadAltitude().Result} m", "Line 5", "Line 6", "Line 7", "Line 8");
-                    //    display.DisplayUpdate();
-                    //}
-
-                    //for (int i = 0; i < 100; i++)
-                    //    display.DrawPixel(i, i);
-
-                    takePictureTask.Wait();
-                    Thread.Sleep(30000);
-                    display.ClearDisplay();
+                    display.WriteLineBuff(dfont, $"Temperature: {sensor.ReadTemperature().Result} °C", $"Pressure: {sensor.ReadPressure().Result} Pa", $"Humidity: {sensor.ReadHumidity().Result} %", $"Altitude: {sensor.ReadAltitude().Result} m", "Line 5", "Line 6", "Line 7", "Line 8");
+                    display.DisplayUpdate();
                 }
+
+                //for (int i = 0; i < 100; i++)
+                //    display.DrawPixel(i, i);
+
+                takePictureTask.Wait();
+                display.ClearDisplay();
             }
             // releasing relay
             relay.Write(true);
