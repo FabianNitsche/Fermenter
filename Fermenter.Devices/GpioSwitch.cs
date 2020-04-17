@@ -1,34 +1,31 @@
 ﻿using ReactiveGpio;
-using ReactiveGpio.Drivers;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Fermenter.Devices
 {
-    public class GpioSwitch : IDisposable
+    public sealed class GpioSwitch : IDisposable
     {
-        private readonly IDisposable subscription;
-
-        private readonly int gpioPin;
-
-        private readonly IGpioDriver driver;
+        public async Task<GpioSwitch> Create(IGpioDriver driver, int gpioPin, bool lowIsOff, IObservable<bool> onOffTrigger)
+        {
+            var port = await OutputPort.Create(gpioPin, lowIsOff ? OutputPort.InitialValue.Low : OutputPort.InitialValue.High, driver);
+            return new GpioSwitch(port, onOffTrigger);
+        }
 
         private readonly OutputPort port;
 
-        public GpioSwitch(IGpioDriver driver, int gpioPin, bool lowIsOff, IObservable<bool> trigger)
-        {
-            this.gpioPin = gpioPin;
-            this.driver = driver;
+        private readonly IDisposable subscription;
 
-            port = OutputPort.Create(gpioPin, lowIsOff ? OutputPort.InitialValue.Low : OutputPort.InitialValue.High, driver).Result;
-            subscription = trigger.Subscribe(port);
+        private GpioSwitch(OutputPort port, IObservable<bool> onOffTrigger)
+        {
+            this.port = port;
+            subscription = onOffTrigger.Subscribe(port);
         }
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -36,7 +33,7 @@ namespace Fermenter.Devices
                 {
                     subscription.Dispose();
                     port.Write(false);
-                    driver.UnAssignPin(gpioPin.ToString());
+                    port.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -47,7 +44,7 @@ namespace Fermenter.Devices
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~Heater()
+        // ~GpioSwitch()
         // {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
