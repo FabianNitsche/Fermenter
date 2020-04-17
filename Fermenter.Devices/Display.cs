@@ -21,7 +21,7 @@ namespace Fermenter.Devices
             this.temperatureHistory = temperatureHistory;
             this.display = display;
 
-            var delay = TimeSpan.FromMilliseconds(500);
+            var delay = TimeSpan.FromMilliseconds(1000);
 
             subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, CreatePlotData).Buffer(delay).Subscribe(plotData => Plot(plotData.Last()));
         }
