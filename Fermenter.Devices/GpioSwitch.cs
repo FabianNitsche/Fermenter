@@ -1,22 +1,28 @@
-﻿using System;
+﻿using ReactiveGpio;
+using ReactiveGpio.Drivers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Fermenter.Devices
 {
-    public class Heater : IDisposable
+    public class GpioSwitch : IDisposable
     {
-        private readonly ISwitch relaySwitch;
-
-        private readonly Action onDispose;
-
         private readonly IDisposable subscription;
 
-        public Heater(ISwitch relaySwitch, IObservable<bool> heaterOnOff, Action onDispose)
+        private readonly int gpioPin;
+
+        private readonly IGpioDriver driver;
+
+        private readonly OutputPort port;
+
+        public GpioSwitch(IGpioDriver driver, int gpioPin, bool lowIsOff, IObservable<bool> trigger)
         {
-            this.relaySwitch = relaySwitch;
-            subscription = heaterOnOff.Subscribe(on => relaySwitch.On = on);
-            this.onDispose = onDispose;
+            this.gpioPin = gpioPin;
+            this.driver = driver;
+
+            port = OutputPort.Create(gpioPin, lowIsOff ? OutputPort.InitialValue.Low : OutputPort.InitialValue.High, driver).Result;
+            subscription = trigger.Subscribe(port);
         }
 
         #region IDisposable Support
@@ -29,7 +35,8 @@ namespace Fermenter.Devices
                 if (disposing)
                 {
                     subscription.Dispose();
-                    onDispose();
+                    port.Write(false);
+                    driver.UnAssignPin(gpioPin.ToString());
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
