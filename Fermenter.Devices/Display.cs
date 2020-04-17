@@ -21,11 +21,44 @@ namespace Fermenter.Devices
             this.temperatureHistory = temperatureHistory;
             this.display = display;
 
-            subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, Plot).Throttle(TimeSpan.FromMilliseconds(100)).Subscribe();
+            var delay = TimeSpan.FromMilliseconds(500);
+
+            subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, CreatePlotData).Buffer(delay).Do(plotData => Plot(plotData.Last())).Subscribe();
         }
 
-        private Unit Plot(double setTemperature, double currentTemperature, TimeSpan plottingTimeSpan, double plottingBand, IPAddress ipAddress)
+        private PlotData CreatePlotData(double setTemperature, double currentTemperature, TimeSpan plottingTimeSpan, double plottingBand, IPAddress ipAddress) => new PlotData(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAddress);
+
+
+        private class PlotData
         {
+            public double SetTemperature { get; }
+
+            public double CurrentTemperature { get; }
+
+            public TimeSpan PlottingTimeSpan { get; }
+
+            public double PlottingBand { get; }
+
+            public IPAddress IPAddress { get; }
+
+            public PlotData(double setTemperature, double currentTemperature, TimeSpan plottingTimeSpan, double plottingBand, IPAddress ipAddress)
+            {
+                SetTemperature = setTemperature;
+                CurrentTemperature = currentTemperature;
+                PlottingTimeSpan = plottingTimeSpan;
+                PlottingBand = plottingBand;
+                IPAddress = ipAddress;
+            }
+        }
+
+        private Unit Plot(PlotData plotData)
+        {
+            var setTemperature = plotData.SetTemperature;
+            var currentTemperature = plotData.CurrentTemperature;
+            var ipAddress = plotData.IPAddress;
+            var plottingBand = plotData.PlottingBand;
+            var plottingTimeSpan = plotData.PlottingTimeSpan;
+
             display.WriteSetTemp(setTemperature);
             display.WriteCurrentTemp(currentTemperature);
             display.WriteIp(ipAddress);
