@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ReactiveGpio\ReactiveGpio\ReactiveGpio.csproj" />
+    <ProjectReference Include="..\..\SSD1306-Sharp\SSD1306\SSD1306-Sharp.csproj" />
   </ItemGroup>
 
 </Project>

@@ -21,7 +21,7 @@ namespace Fermenter.Devices
             this.temperatureHistory = temperatureHistory;
             this.display = display;
 
-            subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, Plot).Subscribe();
+            subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, Plot).Throttle(TimeSpan.FromMilliseconds(100)).Subscribe();
         }
 
         private Unit Plot(double setTemperature, double currentTemperature, TimeSpan plottingTimeSpan, double plottingBand, IPAddress ipAddress)
@@ -69,10 +69,10 @@ namespace Fermenter.Devices
                     }
                 }
 
-                display.DrawDiagram(yMin, yMax, plottingTimeSpan, values, (int)minIndex);
+                display.DrawDiagram(new DiagramData(yMin, yMax, plottingTimeSpan, values, (int)minIndex));
             }
             else
-                display.DrawDiagram(yMin, yMax, plottingTimeSpan, new double[0], 0);
+                display.DrawDiagram(new DiagramData(yMin, yMax, plottingTimeSpan, new double[0], 0));
 
             display.Draw();
 

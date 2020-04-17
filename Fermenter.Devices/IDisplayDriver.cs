@@ -13,7 +13,7 @@ namespace Fermenter.Devices
 
         void WriteIp(IPAddress address);
 
-        void DrawDiagram(double yMin, double yMax, TimeSpan diagramTimeSpan, double[] values, int emptyValuesAtStart);
+        void DrawDiagram(DiagramData diagramData);
 
         double MaxValues { get; }
 
