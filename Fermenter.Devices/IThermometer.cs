@@ -4,9 +4,8 @@ using System.Text;
 
 namespace Fermenter.Devices
 {
-    public interface IHistory<T>
+    public interface IThermometer
     {
-        TimedValue<T>[] GetValuesBeforeNow(TimeSpan timeSpan, out DateTime now);
-
+        IObservable<double> CurrentTemperature { get; }
     }
 }

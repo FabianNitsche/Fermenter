@@ -6,7 +6,7 @@ namespace Fermenter.Devices
 {
     public sealed class GpioSwitch : IDisposable
     {
-        public async Task<GpioSwitch> Create(IGpioDriver driver, int gpioPin, bool lowIsOff, IObservable<bool> onOffTrigger)
+        public static async Task<GpioSwitch> Create(IGpioDriver driver, int gpioPin, bool lowIsOff, IObservable<bool> onOffTrigger)
         {
             var port = await OutputPort.Create(gpioPin, lowIsOff ? OutputPort.InitialValue.Low : OutputPort.InitialValue.High, driver);
             return new GpioSwitch(port, onOffTrigger);

@@ -9,5 +9,11 @@ namespace Fermenter.Devices
         public T Value { get; }
 
         public DateTime Time { get; }
+
+        public TimedValue(T value, DateTime time)
+        {
+            Value = value;
+            Time = time;
+        }
     }
 }

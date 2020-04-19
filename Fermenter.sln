@@ -15,11 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveGpio", "..\ReactiveGpio\ReactiveGpio\ReactiveGpio.csproj", "{D7498C20-1BD2-4295-9FE5-A7290ACAE26E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fermenter.Devices", "Fermenter.Devices\Fermenter.Devices.csproj", "{046363DA-4827-4F40-86DA-159BC629633C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fermenter.Devices", "Fermenter.Devices\Fermenter.Devices.csproj", "{046363DA-4827-4F40-86DA-159BC629633C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fermenter.Controller", "Fermenter.Controller\Fermenter.Controller.csproj", "{27D7FD6B-C89D-428A-B07A-C5ADE859C1FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fermenter.Controller", "Fermenter.Controller\Fermenter.Controller.csproj", "{27D7FD6B-C89D-428A-B07A-C5ADE859C1FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fermenter.ViewModel", "Fermenter.ViewModel\Fermenter.ViewModel.csproj", "{934AF95E-6D0A-419F-9564-0B98DB0E9430}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fermenter.ViewModel", "Fermenter.ViewModel\Fermenter.ViewModel.csproj", "{934AF95E-6D0A-419F-9564-0B98DB0E9430}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fermenter", "Fermenter\Fermenter.csproj", "{97F00371-BAB9-4622-BB1B-640B1897B0EA}"
 EndProject

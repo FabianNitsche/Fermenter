@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fermenter.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace Fermenter.Devices
 {
-    public class Display : IDisposable
+    public class DisplayView : IDisposable
     {
         private readonly IHistory<double> temperatureHistory;
 
@@ -16,14 +17,21 @@ namespace Fermenter.Devices
 
         private readonly IDisposable subscription;
 
-        public Display(IHistory<double> temperatureHistory, IDisplayDriver display, IObservable<double> setTemperature, IObservable<double> currentTemperature, IObservable<TimeSpan> plottingTimeSpan, IObservable<double> plottingBand, IObservable<IPAddress> ipAdress)
-        {
+        public DisplayView(IHistory<double> temperatureHistory, IDisplayDriver display, DisplayViewModel vm)        {
             this.temperatureHistory = temperatureHistory;
             this.display = display;
 
-            var delay = TimeSpan.FromMilliseconds(1000);
+            var delay = TimeSpan.FromMilliseconds(3000);
 
-            subscription = Observable.CombineLatest(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAdress, CreatePlotData).Buffer(delay).Subscribe(plotData => Plot(plotData.Last()));
+            subscription = Observable.CombineLatest(vm.SetTemperature, vm.CurrentTemperature.Select(d => d), vm.PlottingTimeSpan, vm.PlottingBand, vm.IpAdress, CreatePlotData)
+                .Buffer(delay)
+                .Subscribe(plotData =>
+            {
+                if (plotData.Any())
+                    Plot(plotData.Last());
+
+            });
+            //.Subscribe(pd => Plot(pd));
         }
 
         private PlotData CreatePlotData(double setTemperature, double currentTemperature, TimeSpan plottingTimeSpan, double plottingBand, IPAddress ipAddress) => new PlotData(setTemperature, currentTemperature, plottingTimeSpan, plottingBand, ipAddress);

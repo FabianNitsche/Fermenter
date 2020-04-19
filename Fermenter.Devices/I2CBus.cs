@@ -2,10 +2,11 @@
 using SSD1306.Fonts;
 using SSD1306.I2CPI;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Text;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Fermenter.Devices
 {
@@ -13,12 +14,19 @@ namespace Fermenter.Devices
     {
         private readonly I2CBusPI bus;
 
+        private readonly IObservable<Unit> pollingTrigger;
+
         private SSD1306Driver ssd1306;
         public IDisplayDriver SSD1306DisplayDriver => ssd1306 ?? (ssd1306 = new SSD1306Driver(bus));
 
-        public I2CBus()
+        private BME280Sensor bme280;
+
+        public IThermometer Thermometer => bme280 ?? (bme280 = new BME280Sensor(bus, pollingTrigger));
+
+        public I2CBus(IObservable<Unit> pollingTrigger)
         {
             bus = new I2CBusPI(1);
+            this.pollingTrigger = pollingTrigger;
         }
 
 
@@ -35,31 +43,17 @@ namespace Fermenter.Devices
                     bus.Dispose();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~I2CBus()
-        // {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
         #endregion
 
-        private class SSD1306Driver : IDisplayDriver, IDisposable
+        private sealed class SSD1306Driver : IDisplayDriver, IDisposable
         {
             private readonly SSD1306.Display display;
 
@@ -72,7 +66,9 @@ namespace Fermenter.Devices
                 display.Init();
             }
 
-            public double MaxValues => 117;
+            private const int XStart = 13;
+            private const int XEnd = 127;
+            public int MaxValues => XEnd - XStart;
 
             private string Format(double? value, string format, string outsideBounds)
             {
@@ -81,7 +77,9 @@ namespace Fermenter.Devices
 
             public void Draw()
             {
-                var degree = (char)251;
+                display.ClearBuffer();
+
+                var degree = (char)248;
                 var firstLine = $"Set {Format(setTemp, "00", "**")} {degree}C Is {Format(currentTemp, "00.0", "**.*")} {degree}C";
                 display.WriteLineBuff(font, firstLine, 0, 0);
 
@@ -107,35 +105,37 @@ namespace Fermenter.Devices
 
                 var lastLineEnd = ipAddress == null ? "*.*.*.*" : ipAddress;
                 if (lastLineEnd.Length > 16) lastLineEnd = lastLineEnd.Substring(lastLineEnd.Length - 16);
-                var lastLineEndStartColumn = 25 - lastLineEnd.Length;
+                var lastLineEndStartColumn = 128 - lastLineEnd.Length * 7;
                 display.WriteLineBuff(font, lastLineEnd, 7, (uint)lastLineEndStartColumn);
 
                 // draw diagram
-                int xstart = 10;
-                int xend = 127;
                 int ystart = 8;
                 int yend = 55;
 
                 // start with a box
-                display.DrawPolygon(false, new Vector2(xend, ystart), new Vector2(xstart, ystart), new Vector2(xstart, yend), new Vector2(xend, yend));
+                display.DrawPolygon(false, new Vector2(XEnd, ystart), new Vector2(XStart, ystart), new Vector2(XStart, yend), new Vector2(XEnd, yend));
                 if (diagramData != null)
                 {
                     var yDifference = yend - ystart;
                     var displayTempDifference = diagramData.YMax - diagramData.YMin;
                     var tempDifferencePerPixel = displayTempDifference / yDifference;
 
+                    var points = new Vector2[diagramData.Values.Length];
+
                     for (int i = 0; i < diagramData.Values.Length; i++)
                     {
-                        var x = xend - i - diagramData.EmptyValuesAtStart;
-                        if (x <= xstart)
+                        var x = XEnd - i - diagramData.EmptyValuesAtStart;
+                        if (x <= XStart)
                             break;
                         var value = diagramData.Values[i];
                         var y = yend - (int)Math.Round((value - diagramData.YMin) / tempDifferencePerPixel);
-                        if (y <= ystart || y >= yend)
-                            continue;
+                        // this is not really good.
+                        if (y < ystart) y = ystart;
+                        else if (y > yend) y = yend;
 
-                        display.DrawPixel(x, y);
+                        points[i] = new Vector2(x, y);
                     }
+                    display.DrawPolygon(false, points);
                 }
 
                 diagramData = null;
@@ -161,7 +161,7 @@ namespace Fermenter.Devices
             private string ipAddress;
             public void WriteIp(IPAddress ipAddress)
             {
-                this.ipAddress = ipAddress.ToString();
+                this.ipAddress = ipAddress?.ToString();
             }
 
             private double? setTemp;
@@ -173,7 +173,7 @@ namespace Fermenter.Devices
             #region IDisposable Support
             private bool disposedValue = false; // To detect redundant calls
 
-            protected virtual void Dispose(bool disposing)
+            private void Dispose(bool disposing)
             {
                 if (!disposedValue)
                 {
@@ -181,30 +181,27 @@ namespace Fermenter.Devices
                     {
                         display.DisplayOff();
                     }
-
-                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                    // TODO: set large fields to null.
-
                     disposedValue = true;
                 }
             }
 
-            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-            // ~SSD1306Driver()
-            // {
-            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            //   Dispose(false);
-            // }
-
-            // This code added to correctly implement the disposable pattern.
             public void Dispose()
             {
-                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
                 Dispose(true);
-                // TODO: uncomment the following line if the finalizer is overridden above.
-                // GC.SuppressFinalize(this);
             }
             #endregion
+        }
+
+        private sealed class BME280Sensor : IThermometer
+        {
+            public BME280Sensor(I2CBusPI bus, IObservable<Unit> pollingTrigger)
+            {
+                var sensor = new BoschDevices.BME280Sensor(bus, 1014);
+                var delay = TimeSpan.FromMilliseconds(500);
+                CurrentTemperature = pollingTrigger.Buffer(delay).Select(_ => (double)sensor.ReadTemperature().Result);
+            }
+
+            public IObservable<double> CurrentTemperature { get; }
         }
     }
 }

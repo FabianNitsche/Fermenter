@@ -15,7 +15,7 @@ namespace Fermenter.Devices
 
         void DrawDiagram(DiagramData diagramData);
 
-        double MaxValues { get; }
+        int MaxValues { get; }
 
         void Draw();
     }

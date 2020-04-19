@@ -8,7 +8,7 @@ namespace Fermenter.Devices
 {
     public sealed class GpioTrigger : IObservable<bool>, IDisposable
     {
-        public async Task<GpioTrigger> Create(IGpioDriver driver, int gpioPin)
+        public static async Task<GpioTrigger> Create(IGpioDriver driver, int gpioPin)
         {
             var port = await InputPort.Create(gpioPin, GpioEdge.Both, driver);
             return new GpioTrigger(port);

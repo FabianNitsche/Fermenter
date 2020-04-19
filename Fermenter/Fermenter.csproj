@@ -50,6 +50,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ReactiveGpio\ReactiveGpio\ReactiveGpio.csproj">
+      <Project>{d7498c20-1bd2-4295-9fe5-a7290acae26e}</Project>
+      <Name>ReactiveGpio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Fermenter.Controller\Fermenter.Controller.csproj">
+      <Project>{27d7fd6b-c89d-428a-b07a-c5ade859c1fb}</Project>
+      <Name>Fermenter.Controller</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Fermenter.Devices\Fermenter.Devices.csproj">
       <Project>{046363da-4827-4f40-86da-159bc629633c}</Project>
       <Name>Fermenter.Devices</Name>
@@ -58,6 +66,14 @@
       <Project>{934af95e-6d0a-419f-9564-0b98db0e9430}</Project>
       <Name>Fermenter.ViewModel</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reactive">
+      <Version>4.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.Linq">
+      <Version>4.4.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

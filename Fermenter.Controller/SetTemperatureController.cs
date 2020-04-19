@@ -17,7 +17,7 @@ namespace Fermenter.Controller
 
             var deltaTemperature = Observable.Merge(incrementTemperature, decrementTemperature);
 
-            SetTemperature = deltaTemperature.Aggregate(start, (previous, delta) => previous + delta);
+            SetTemperature = deltaTemperature.StartWith(0).Scan(start, (previous, delta) => previous + delta);
         }
     }
 }
