@@ -62,7 +62,7 @@ namespace Fermenter.Devices
             public SSD1306Driver(I2CBusPI bus)
             {
                 var i2cDevice = new I2CDevicePI(bus, SSD1306.Display.DefaultI2CAddress);
-                display = new SSD1306.Display(i2cDevice, 128, 64);
+                display = new SSD1306.Display(i2cDevice, 128, 64, true);
                 display.Init();
             }
 
