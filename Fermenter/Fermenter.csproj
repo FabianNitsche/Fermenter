@@ -54,6 +54,10 @@
       <Project>{d7498c20-1bd2-4295-9fe5-a7290acae26e}</Project>
       <Name>ReactiveGpio</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SSD1306-Sharp\SSD1306\SSD1306-Sharp.csproj">
+      <Project>{08E0FC2B-ABF5-4C46-AF18-D14B0A35949D}</Project>
+      <Name>SSD1306-Sharp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Fermenter.Controller\Fermenter.Controller.csproj">
       <Project>{27d7fd6b-c89d-428a-b07a-c5ade859c1fb}</Project>
       <Name>Fermenter.Controller</Name>
@@ -68,6 +72,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MMALSharp">
+      <Version>0.6.0</Version>
+    </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>4.4.1</Version>
     </PackageReference>

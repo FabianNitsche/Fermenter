@@ -53,7 +53,7 @@ namespace Fermenter.Devices
         }
         #endregion
 
-        private sealed class SSD1306Driver : IDisplayDriver, IDisposable
+        public sealed class SSD1306Driver : IDisplayDriver, IDisposable
         {
             private readonly SSD1306.Display display;
 
@@ -192,7 +192,7 @@ namespace Fermenter.Devices
             #endregion
         }
 
-        private sealed class BME280Sensor : IThermometer
+        public sealed class BME280Sensor : IThermometer
         {
             public BME280Sensor(I2CBusPI bus, IObservable<Unit> pollingTrigger)
             {
